@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ザキャンタウン公式ナビ</title>
+    <style>
+        /* =========================================
+           📱 1. 基本設定＆ロトムスマホ風デザイン
+           ========================================= */
+        :root {
+            --rotom-orange: #ff5e00;
+            --rotom-dark: #d94f00;
+            --rotom-cyan: #00f0ff;
+            --rotom-cyan-dark: #00b4d8;
+            --bg-color: #f0f8ff;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-sub: #64748b;
+        }
+
+        * { 
+            box-sizing: border-box; 
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent; 
+            user-select: none;
+        }
+
+        body {
+            font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+            background-color: var(--bg-color);
+            background-image: radial-gradient(var(--rotom-cyan) 1px, transparent 1px);
+            background-size: 20px 20px;
+            color: var(--text-main);
+            margin: 0; padding: 0;
+            padding-bottom: 80px; 
+        }
+
+        /* ⚡️️ 速報テロップ */
+        .ticker-wrap {
+            background: #111; color: var(--rotom-cyan);
+            padding: 8px 0; overflow: hidden;
+            font-size: 14px; font-weight: bold;
+            display: flex; align-items: center;
+        }
+        .ticker-label {
+            background: var(--rotom-orange); color: white;
+            padding: 2px 8px; border-radius: 4px;
+            margin-left: 10px; font-size: 12px; z-index: 2; position: relative;
+            flex-shrink: 0;
+        }
+        .ticker-text {
+            white-space: nowrap; padding-left: 100%;
+            animation: ticker 15s linear infinite;
+        }
+        @keyframes ticker {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* 📱 ヘッダー */
+        header {
+            background: var(--rotom-orange); color: white;
+            padding: 24px 16px; text-align: center;
+            border-bottom: 6px solid var(--rotom-dark);
+            border-bottom-left-radius: 30px; border-bottom-right-radius: 30px;
+            box-shadow: 0 4px 15px rgba(255, 94, 0, 0.3);
+            position: relative; overflow: hidden;
+        }
+        header h1 { margin: 0; font-size: 22px; font-weight: 900; letter-spacing: 1px; cursor: pointer; }
+        header p { margin: 5px 0 0; font-size: 13px; font-weight: bold; color: #ffe0cc; }
+        
+        .sensor {
+            width: 12px; height: 12px;
+            background: var(--rotom-cyan); border-radius: 50%;
+            position: absolute; top: 20px; left: 20px;
+            box-shadow: 0 0 10px var(--rotom-cyan);
+            animation: blink 2s infinite;
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+        .container { padding: 20px 16px; max-width: 600px; margin: 0 auto; }
+        .section-title {
+            font-size: 16px; font-weight: 900; color: var(--rotom-orange);
+            margin: 24px 0 12px; display: flex; align-items: center; gap: 8px;
+        }
+        .section-title::before {
+            content: ''; display: inline-block; width: 6px; height: 18px;
+            background: var(--rotom-cyan); border-radius: 4px;
+        }
+
+        /* 📍 アトラクションカード＆ボタンギミック */
+        .nav-grid { display: flex; flex-direction: column; gap: 14px; }
+        
+        .nav-card {
+            background: var(--card-bg); border-radius: 20px; padding: 18px 16px;
+            display: flex; align-items: center; justify-content: space-between;
+            text-decoration: none; color: inherit;
+            border: 2px solid var(--rotom-cyan-dark);
+            box-shadow: 0 4px 0 var(--rotom-cyan-dark);
+            transition: transform 0.1s, box-shadow 0.1s;
+            cursor: pointer;
+        }
+        .nav-card:active {
+            transform: translateY(4px) !important;
+            box-shadow: 0 0 0 var(--rotom-cyan-dark) !important;
+        }
+
+        .nav-card.map-card {
+            border-color: #f59e0b !important;
+            box-shadow: 0 4px 0 #f59e0b !important;
+        }
+        .nav-card.map-card:active {
+            transform: translateY(4px) !important;
+            box-shadow: 0 0 0 #f59e0b !important;
+        }
+
+        .card-info { flex: 1; }
+        .card-title { font-weight: 900; font-size: 16px; margin: 0; color: var(--text-main); }
+        .card-status { 
+            display: inline-block; font-size: 12px; font-weight: bold;
+            background: #f1f5f9; padding: 4px 8px; border-radius: 12px; margin-top: 6px;
+        }
+        .card-desc { font-size: 12px; color: var(--text-sub); margin-top: 6px; font-weight: bold; }
+        .arrow-icon { color: var(--rotom-cyan-dark); font-weight: 900; font-size: 20px; padding-left: 10px; }
+
+        /* =========================================
+           🦎 2. カクレオンスタンプ枠（常時表示・見つけると変化）
+           ========================================= */
+        #kecleon-slot-container {
+            display: block; /* 最初から表示しておく */
+        }
+        
+        .stamp-section {
+            background: var(--card-bg); border-radius: 24px; padding: 20px;
+            border: 3px solid #ef4444; box-shadow: 0 6px 0 #b91c1c;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+        
+        .stamp-box-single {
+            background: #f8fafc; border: 3px dashed #94a3b8; border-radius: 16px; height: 100px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            position: relative; overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        /* 押された後の状態（背景色と枠線が変わる） */
+        .stamp-box-single.stamped {
+            background: #fff1f2;
+            border: 3px dashed #ef4444;
+        }
+
+        /* ミッションのテキスト */
+        #mission-text {
+            font-size: 12px; font-weight: 900; color: #64748b; margin-bottom: 4px;
+            transition: color 0.3s;
+            z-index: 2; position: relative;
+        }
+        /* 押された後はテキストの色を赤くする */
+        .stamp-box-single.stamped #mission-text {
+            color: #ef4444;
+        }
+
+        /* スタンプ画像（Detected!） */
+        .stamp-text-detected {
+            font-size: 24px; font-weight: 900; color: #ef4444;
+            border: 4px solid #ef4444; border-radius: 12px; padding: 6px 20px;
+            letter-spacing: 2px; background: rgba(255,255,255,0.8);
+            position: absolute; opacity: 0; transform: scale(3) rotate(-8deg);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none; z-index: 3;
+        }
+        
+        .stamp-box-single.stamped .stamp-text-detected {
+            opacity: 1; transform: scale(1) rotate(-4deg);
+        }
+
+        /* 隠しカクレオンのアイコン自体 */
+        .hidden-kecleon {
+            position: absolute; top: 10px; right: 10px; width: 50px; height: 50px;
+            opacity: 0.25; cursor: pointer; z-index: 10; padding: 5px;
+            transition: opacity 0.5s ease;
+        }
+
+        /* 🤖 ナビキャラ */
+        #navi-character {
+            position: fixed; bottom: 15px; left: 15px; width: 90px;
+            z-index: 999; pointer-events: none;
+            filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.2));
+            animation: floating 3s ease-in-out infinite;
+        }
+        @keyframes floating {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        /* =========================================
+           📱 3. その他UI（モーダル・SNSボタン等）
+           ========================================= */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.8); z-index: 1000;
+            justify-content: center; align-items: center; padding: 20px;
+        }
+        .modal-content {
+            background: var(--card-bg); border-radius: 24px; padding: 20px;
+            width: 100%; max-width: 500px; text-align: center;
+            border: 4px solid var(--rotom-cyan); box-shadow: 0 0 20px var(--rotom-cyan);
+        }
+        .modal-img { width: 100%; border-radius: 12px; margin: 15px 0; max-height: 70vh; object-fit: contain; background: #e2e8f0; }
+        .close-btn {
+            width: 100%; padding: 14px; border-radius: 16px; border: none;
+            background: #1e293b; color: white; font-weight: 900; font-size: 16px;
+            border-bottom: 4px solid #0f172a; cursor: pointer; transition: transform 0.1s;
+        }
+        .close-btn:active { transform: translateY(4px); border-bottom-width: 0px; }
+
+        .sns-btn {
+            display: block; width: 100%; padding: 16px; margin-bottom: 10px;
+            border-radius: 16px; text-align: center; text-decoration: none;
+            color: white; font-weight: 900; font-size: 15px;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+            transition: transform 0.1s, box-shadow 0.1s;
+            cursor: pointer;
+        }
+        .sns-btn:active { transform: translateY(4px); box-shadow: 0 0 0 transparent; }
+        #btn-x { background: #000; }
+        #btn-insta { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+    </style>
+</head>
+<body>
+
+    <!-- 🤖 常駐ナビキャラクター -->
+    <img id="navi-character" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/479.png" alt="ナビキャラ">
+
+    <!-- ⚡️ 速報テロップ -->
+    <div class="ticker-wrap">
+        <div class="ticker-label">速報</div>
+        <div class="ticker-text" id="ui-ticker">データをロード中...</div>
+    </div>
+
+    <!-- 📱 ヘッダー -->
+    <header>
+        <div class="sensor"></div>
+        <!-- 🦎 隠しカクレオン -->
+        <img id="kecleon-easter-egg" class="hidden-kecleon" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/352.png" alt="？">
+        
+        <!-- 3回連続タップで初期化 -->
+        <h1 id="header-title" onclick="handleTitleClick()">ザキャンタウン公式ナビ</h1>
+        <p>ZACAN TOWN NAVIGATION</p>
+    </header>
+
+    <div class="container">
+
+        <!-- 📍 エリアスキャン結果 -->
+        <div class="section-title">🌐 エリアスキャン結果</div>
+        <div class="nav-grid">
+            <div class="nav-card map-card" onclick="openMapModal()">
+                <div class="card-info">
+                    <div class="card-title">🗺️ ザキャンタウン マップ</div>
+                    <div class="card-desc">エリアの地図とポスター配置を確認！</div>
+                </div>
+                <span class="arrow-icon" style="color:#f59e0b;">🔍</span>
+            </div>
+
+            <!-- 👇 メタモンラリー：リンク設定済み -->
+            <a id="card-metamon" class="nav-card" href="https://shisutaku-hub.github.io/IVY2026-1/" target="_blank" rel="noopener noreferrer">
+                <div class="card-info">
+                    <div class="card-title">メタモンを探せ！</div>
+                    <div class="card-status" id="status-metamon">🟢 開催中</div>
+                    <div class="card-desc" id="msg-metamon">新座キャンパス内のポスターを探そう！</div>
+                </div>
+                <span class="arrow-icon">▶</span>
+            </a>
+
+            <!-- 👇 室内謎解きラリー：リンク設定済み -->
+            <a id="card-riddle" class="nav-card" href="https://shisutaku-hub.github.io/IVY2026-2-test1/" target="_blank" rel="noopener noreferrer">
+                <div class="card-info">
+                    <div class="card-title">ポケモンクイズサバイバル</div>
+                    <div class="card-status" id="status-riddle">読み込み中...</div>
+                    <div class="card-desc" id="msg-riddle"></div>
+                </div>
+                <span class="arrow-icon">▶</span>
+            </a>
+
+            <!-- 👇 対戦ブース：まだリンクがないのでアラート -->
+            <a id="card-battle" class="nav-card" href="#" onclick="event.preventDefault(); alert('対戦ブースのページは現在準備中です！');">
+                <div class="card-info">
+                    <div class="card-title">ザキャンタウンリーグ</div>
+                    <div class="card-status" id="status-battle">読み込み中...</div>
+                    <div class="card-desc" id="msg-battle"></div>
+                </div>
+                <span class="arrow-icon">▶</span>
+            </a>
+
+            <!-- 👇 塗り絵ブース：機能（リンク・アラート）無効化 -->
+            <div id="card-nurie" class="nav-card" style="cursor: default;">
+                <div class="card-info">
+                    <div class="card-title">塗り絵ブース</div>
+                    <div class="card-status" id="status-nurie">実施中</div>
+                    <div class="card-desc" id="msg-nurie">自由にご参加ください</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🦎 カクレオンスタンプ（常時表示・見つけると変化） -->
+        <div id="kecleon-slot-container">
+            <div class="section-title" style="color: #ef4444;">🦎 SPECIAL MISSION（達成したら受付に見せよう！）</div>
+            <div class="stamp-section">
+                <div class="stamp-box-single" id="stamp-box-kecleon">
+                    <!-- 初期状態のテキスト -->
+                    <span id="mission-text">公式ナビ内で「 ？？？ 」を見つける</span>
+                    <!-- 押された後のスタンプ -->
+                    <div class="stamp-text-detected">Detected!</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 📱 SNSリンク -->
+        <div class="section-title">📡 ザキャンタウン広報部(サークル公式SNS)</div>
+        <div>
+            <!-- 👇 SNS：まだリンクがないのでアラート -->
+            <a id="btn-x" class="sns-btn" href="#" onclick="event.preventDefault(); alert('公式Xは準備中です！');">公式 X (Twitter)</a>
+            <a id="btn-insta" class="sns-btn" href="#" onclick="event.preventDefault(); alert('Instagramは準備中です！');">Instagram</a>
+        </div>
+    </div>
+
+    <!-- 🗺️ マップ用モーダル -->
+    <div id="map-modal" class="modal" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h2 style="margin:0; color:var(--rotom-cyan-dark);">🗺️ ZACAN TOWN MAP</h2>
+            <img id="modal-map-img" src="https://via.placeholder.com/600x800?text=Map+Coming+Soon" class="modal-img" alt="マップ画像">
+            <button class="close-btn" onclick="closeModal()">閉じる</button>
+        </div>
+    </div>
+
+    <script>
+        // =========================================================
+        // ⚙️ JSONBin.io リアルタイム通信設定
+        // =========================================================
+        const BIN_ID = '6abb2a57ffd5d160533a032a';
+        const ACCESS_KEY = '$2a$10$/FgdH2zMmz9o6q4aU6f3b.GhES1PuIZ4P15WPZr8/6zg13d1GzaCC';
+        const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+
+        // ---------------------------------------------------------
+        // 1. JSONBin.io（管理者サイト直結のリアルタイム混雑・速報）読み込み
+        // ---------------------------------------------------------
+        async function loadRealtimeData() {
+            try {
+                const response = await fetch(JSONBIN_URL, {
+                    headers: { 'X-Access-Key': ACCESS_KEY }
+                });
+                const result = await response.json();
+                const data = result.record;
+
+                if (data && data.ticker && data.ticker.news) {
+                    document.getElementById('ui-ticker').innerText = data.ticker.news;
+                }
+
+                ['riddle', 'battle', 'nurie'].forEach(id => {
+                    if (data && data[id]) {
+                        const statusEl = document.getElementById(`status-${id}`);
+                        const msgEl = document.getElementById(`msg-${id}`);
+                        if (statusEl && data[id].status) statusEl.innerText = data[id].status;
+                        if (msgEl && data[id].message !== undefined) msgEl.innerText = data[id].message;
+                    }
+                });
+            } catch (error) {
+                console.error("リアルタイム通信エラー:", error);
+                document.getElementById('ui-ticker').innerText = "リアルタイム情報の読み込みに失敗しました。";
+            }
+        }
+
+        // ---------------------------------------------------------
+        // 2. 隠しカクレオン＆スタンプ演出
+        // ---------------------------------------------------------
+        let foundKecleon = localStorage.getItem('zacan_kecleon_found') === 'true';
+        const kecleonElem = document.getElementById('kecleon-easter-egg');
+        const kecleonContainer = document.getElementById('kecleon-slot-container');
+        const kecleonBox = document.getElementById('stamp-box-kecleon');
+        const missionText = document.getElementById('mission-text');
+
+        // カクレオンの状態を画面に反映
+        function applyKecleonState(isNewDiscovery = false) {
+            if (foundKecleon) {
+                // 見つけた状態の見た目
+                kecleonElem.style.opacity = '1';
+                kecleonElem.style.pointerEvents = 'none'; // 重複タップ防止
+                missionText.innerText = "カクレオンを見つける";
+                
+                if (isNewDiscovery) {
+                    // 新規発見時は、少し遅れてドカンとスタンプを押す演出
+                    kecleonBox.classList.remove('stamped');
+                    setTimeout(() => {
+                        kecleonBox.classList.add('stamped');
+                    }, 200);
+                    // スクロールして枠を見せる
+                    kecleonContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } else {
+                    // すでに見つけている場合（リロード時など）は即座にスタンプ表示
+                    kecleonBox.classList.add('stamped');
+                }
+            } else {
+                // 初期状態（まだ見つけていない）
+                kecleonElem.style.opacity = '0.25';
+                kecleonElem.style.pointerEvents = 'auto';
+                kecleonBox.classList.remove('stamped');
+                missionText.innerText = "「 ？？？ 」を見つける";
+            }
+        }
+
+        // カクレオンをタップした時
+        kecleonElem.addEventListener('click', () => {
+            if (foundKecleon) return; // 既に押されていたら何もしない（念のため）
+            foundKecleon = true;
+            localStorage.setItem('zacan_kecleon_found', 'true');
+            applyKecleonState(true);
+        });
+
+        // ⚡️ 初期化機能（タイトルを3回タップで完全リセット）
+        let titleClickCount = 0;
+        let titleClickTimer = null;
+        function handleTitleClick() {
+            titleClickCount++;
+            clearTimeout(titleClickTimer);
+            
+            if (titleClickCount >= 3) {
+                localStorage.removeItem('zacan_kecleon_found');
+                foundKecleon = false;
+                applyKecleonState(false);
+                alert('🧹 隠しデータを初期化しました！');
+                titleClickCount = 0;
+            } else {
+                titleClickTimer = setTimeout(() => { titleClickCount = 0; }, 1000);
+            }
+        }
+
+        // ---------------------------------------------------------
+        // 3. モーダル処理
+        // ---------------------------------------------------------
+        function openMapModal() { document.getElementById('map-modal').style.display = 'flex'; }
+        function closeModal() { document.getElementById('map-modal').style.display = 'none'; }
+
+        // 初期実行
+        window.onload = function() {
+            // ロード時に過去のデータを読み込んでUIに反映
+            applyKecleonState(false);
+            loadRealtimeData();
+        };
+    </script>
+</body>
+</html>
