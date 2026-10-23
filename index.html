@@ -255,7 +255,7 @@
                 <span class="arrow-icon" style="color:#f59e0b;">🔍</span>
             </div>
 
-            <!-- 👇 メタモンラリー：リンク設定済み -->
+            <!-- 👇 メタモンラリー -->
             <a id="card-metamon" class="nav-card" href="https://shisutaku-hub.github.io/IVY2026-1/" target="_blank" rel="noopener noreferrer">
                 <div class="card-info">
                     <div class="card-title">メタモンを探せ！</div>
@@ -265,27 +265,27 @@
                 <span class="arrow-icon">▶</span>
             </a>
 
-            <!-- 👇 室内謎解きラリー（メッセージ固定） -->
+            <!-- 👇 室内謎解きラリー -->
             <a id="card-riddle" class="nav-card" href="https://shisutaku-hub.github.io/IVY2026-2/" target="_blank" rel="noopener noreferrer">
                 <div class="card-info">
                     <div class="card-title">ポケモンクイズサバイバル</div>
                     <div class="card-status" id="status-riddle">読み込み中...</div>
-                    <div class="card-desc" id="msg-riddle">※ホログラムシステムが不安定ですが、ご使用の機器に影響はありません。</div>
+                    <div class="card-desc" id="msg-riddle">※ホログラムシステムに作動不良がありますが、ご使用の機器に影響はありません。</div>
                 </div>
                 <span class="arrow-icon">▶</span>
             </a>
 
-            <!-- 👇 対戦ブース（メッセージ固定） -->
+            <!-- 👇 対戦ブース（ザキャンタウンリーグ） -->
             <a id="card-battle" class="nav-card" href="https://shisutaku-hub.github.io/IVY-2026-zacantown-league/">
                 <div class="card-info">
                     <div class="card-title">ザキャンタウンリーグ</div>
                     <div class="card-status" id="status-battle">読み込み中...</div>
-                    <div class="card-desc" id="msg-battle">ここに固定したいメッセージを入力</div>
+                    <div class="card-desc" id="msg-battle">Pokémon Champions 対戦部門はこちら！</div>
                 </div>
                 <span class="arrow-icon">▶</span>
             </a>
 
-            <!-- 👇 塗り絵ブース（メッセージ固定） -->
+            <!-- 👇 塗り絵ブース -->
             <div id="card-nurie" class="nav-card" style="cursor: default;">
                 <div class="card-info">
                     <div class="card-title">塗り絵ブース</div>
@@ -311,9 +311,8 @@
         <!-- 📱 SNSリンク -->
         <div class="section-title">📡 ザキャンタウン広報部(サークル公式SNS)</div>
         <div>
-            <!-- 👇 SNS：まだリンクがないのでアラート -->
-            <a id="btn-x" class="sns-btn" href="https://x.com/rpgacount">公式 X (Twitter)</a>
-            <a id="btn-insta" class="sns-btn" href="https://instagram.com/rpgniiza?cplk=MTdodHEzaDl2NzRvZQ%3D%3D&utm_source=qr">公式 Instagram</a>
+            <a id="btn-x" class="sns-btn" href="https://x.com/rpgacount" target="_blank" rel="noopener noreferrer">公式 X (Twitter)</a>
+            <a id="btn-insta" class="sns-btn" href="https://instagram.com/rpgniiza?cplk=MTdodHEzaDl2NzRvZQ%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer">公式 Instagram</a>
         </div>
     </div>
 
@@ -335,7 +334,7 @@
         const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
 
         // ---------------------------------------------------------
-        // 1. JSONBin.io（ステータスのみ反映し、メッセージは固定化）読み込み
+        // 1. JSONBin.io（ステータスのみ更新）読み込み
         // ---------------------------------------------------------
         async function loadRealtimeData() {
             try {
@@ -349,7 +348,7 @@
                     document.getElementById('ui-ticker').innerText = data.ticker.news;
                 }
 
-                // ステータス（混雑状況など）のみリアルタイムで更新し、メッセージは上書きしない
+                // ステータス（混雑状況など）のみ更新（メッセージは固定化）
                 ['riddle', 'battle', 'nurie'].forEach(id => {
                     if (data && data[id]) {
                         const statusEl = document.getElementById(`status-${id}`);
@@ -373,7 +372,6 @@
         const kecleonBox = document.getElementById('stamp-box-kecleon');
         const missionText = document.getElementById('mission-text');
 
-        // カクレオンの状態を画面に反映
         function applyKecleonState(isNewDiscovery = false) {
             if (foundKecleon) {
                 kecleonElem.style.opacity = '1';
@@ -393,7 +391,7 @@
                 kecleonElem.style.opacity = '0.25';
                 kecleonElem.style.pointerEvents = 'auto';
                 kecleonBox.classList.remove('stamped');
-                missionText.innerText = "公式ナビ内で " + "「 ？？？ 」" + " を見つける";
+                missionText.innerText = "公式ナビ内で「 ？？？ 」を見つける";
             }
         }
 
