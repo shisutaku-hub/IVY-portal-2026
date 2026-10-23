@@ -36,7 +36,7 @@
             padding-bottom: 80px; 
         }
 
-        /* ⚡️️ 速報テロップ */
+        /* ⚡ 速報テロップ */
         .ticker-wrap {
             background: #111; color: var(--rotom-cyan);
             padding: 8px 0; overflow: hidden;
@@ -128,7 +128,7 @@
            🦎 2. カクレオンスタンプ枠（常時表示・見つけると変化）
            ========================================= */
         #kecleon-slot-container {
-            display: block; /* 最初から表示しておく */
+            display: block;
         }
         
         .stamp-section {
@@ -145,24 +145,20 @@
             transition: all 0.3s;
         }
 
-        /* 押された後の状態（背景色と枠線が変わる） */
         .stamp-box-single.stamped {
             background: #fff1f2;
             border: 3px dashed #ef4444;
         }
 
-        /* ミッションのテキスト */
         #mission-text {
             font-size: 12px; font-weight: 900; color: #64748b; margin-bottom: 4px;
             transition: color 0.3s;
             z-index: 2; position: relative;
         }
-        /* 押された後はテキストの色を赤くする */
         .stamp-box-single.stamped #mission-text {
             color: #ef4444;
         }
 
-        /* スタンプ画像（Detected!） */
         .stamp-text-detected {
             font-size: 24px; font-weight: 900; color: #ef4444;
             border: 4px solid #ef4444; border-radius: 12px; padding: 6px 20px;
@@ -176,14 +172,12 @@
             opacity: 1; transform: scale(1) rotate(-4deg);
         }
 
-        /* 隠しカクレオンのアイコン自体 */
         .hidden-kecleon {
             position: absolute; top: 10px; right: 10px; width: 50px; height: 50px;
             opacity: 0.25; cursor: pointer; z-index: 10; padding: 5px;
             transition: opacity 0.5s ease;
         }
 
-        /* 🤖 ナビキャラ */
         #navi-character {
             position: fixed; bottom: 15px; left: 15px; width: 90px;
             z-index: 999; pointer-events: none;
@@ -195,9 +189,6 @@
             50% { transform: translateY(-8px); }
         }
 
-        /* =========================================
-           📱 3. その他UI（モーダル・SNSボタン等）
-           ========================================= */
         .modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(15, 23, 42, 0.8); z-index: 1000;
@@ -274,32 +265,32 @@
                 <span class="arrow-icon">▶</span>
             </a>
 
-            <!-- 👇 室内謎解きラリー：リンク設定済み -->
+            <!-- 👇 室内謎解きラリー（メッセージ固定） -->
             <a id="card-riddle" class="nav-card" href="https://shisutaku-hub.github.io/IVY2026-2/" target="_blank" rel="noopener noreferrer">
                 <div class="card-info">
                     <div class="card-title">ポケモンクイズサバイバル</div>
                     <div class="card-status" id="status-riddle">読み込み中...</div>
-                    <div class="card-desc" id="msg-riddle">ホログラムシステムに作動不良がありますが、皆様の機器に影響がないため、開催中です。</div>
+                    <div class="card-desc" id="msg-riddle">ここに固定したいメッセージを入力</div>
                 </div>
                 <span class="arrow-icon">▶</span>
             </a>
 
-            <!-- 👇 対戦ブース：まだリンクがないのでアラート -->
+            <!-- 👇 対戦ブース（メッセージ固定） -->
             <a id="card-battle" class="nav-card" href="https://shisutaku-hub.github.io/IVY-2026-zacantown-league/">
                 <div class="card-info">
                     <div class="card-title">ザキャンタウンリーグ</div>
                     <div class="card-status" id="status-battle">読み込み中...</div>
-                    <div class="card-desc" id="msg-battle"></div>
+                    <div class="card-desc" id="msg-battle">ここに固定したいメッセージを入力</div>
                 </div>
                 <span class="arrow-icon">▶</span>
             </a>
 
-            <!-- 👇 塗り絵ブース：機能（リンク・アラート）無効化 -->
+            <!-- 👇 塗り絵ブース（メッセージ固定） -->
             <div id="card-nurie" class="nav-card" style="cursor: default;">
                 <div class="card-info">
                     <div class="card-title">塗り絵ブース</div>
                     <div class="card-status" id="status-nurie">実施中</div>
-                    <div class="card-desc" id="msg-nurie">自由にご参加ください</div>
+                    <div class="card-desc" id="msg-nurie">ここに固定したいメッセージを入力</div>
                 </div>
             </div>
         </div>
@@ -344,7 +335,7 @@
         const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
 
         // ---------------------------------------------------------
-        // 1. JSONBin.io（管理者サイト直結のリアルタイム混雑・速報）読み込み
+        // 1. JSONBin.io（ステータスのみ反映し、メッセージは固定化）読み込み
         // ---------------------------------------------------------
         async function loadRealtimeData() {
             try {
@@ -358,12 +349,13 @@
                     document.getElementById('ui-ticker').innerText = data.ticker.news;
                 }
 
+                // ステータス（混雑状況など）のみリアルタイムで更新し、メッセージは上書きしない
                 ['riddle', 'battle', 'nurie'].forEach(id => {
                     if (data && data[id]) {
                         const statusEl = document.getElementById(`status-${id}`);
-                        const msgEl = document.getElementById(`msg-${id}`);
-                        if (statusEl && data[id].status) statusEl.innerText = data[id].status;
-                        if (msgEl && data[id].message !== undefined) msgEl.innerText = data[id].message;
+                        if (statusEl && data[id].status) {
+                            statusEl.innerText = data[id].status;
+                        }
                     }
                 });
             } catch (error) {
@@ -384,41 +376,34 @@
         // カクレオンの状態を画面に反映
         function applyKecleonState(isNewDiscovery = false) {
             if (foundKecleon) {
-                // 見つけた状態の見た目
                 kecleonElem.style.opacity = '1';
-                kecleonElem.style.pointerEvents = 'none'; // 重複タップ防止
+                kecleonElem.style.pointerEvents = 'none';
                 missionText.innerText = "カクレオンを見つける";
                 
                 if (isNewDiscovery) {
-                    // 新規発見時は、少し遅れてドカンとスタンプを押す演出
                     kecleonBox.classList.remove('stamped');
                     setTimeout(() => {
                         kecleonBox.classList.add('stamped');
                     }, 200);
-                    // スクロールして枠を見せる
                     kecleonContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 } else {
-                    // すでに見つけている場合（リロード時など）は即座にスタンプ表示
                     kecleonBox.classList.add('stamped');
                 }
             } else {
-                // 初期状態（まだ見つけていない）
                 kecleonElem.style.opacity = '0.25';
                 kecleonElem.style.pointerEvents = 'auto';
                 kecleonBox.classList.remove('stamped');
-                missionText.innerText = "「 ？？？ 」を見つける";
+                missionText.innerText = "公式ナビ内で " + "「 ？？？ 」" + " を見つける";
             }
         }
 
-        // カクレオンをタップした時
         kecleonElem.addEventListener('click', () => {
-            if (foundKecleon) return; // 既に押されていたら何もしない（念のため）
+            if (foundKecleon) return;
             foundKecleon = true;
             localStorage.setItem('zacan_kecleon_found', 'true');
             applyKecleonState(true);
         });
 
-        // ⚡️ 初期化機能（タイトルを3回タップで完全リセット）
         let titleClickCount = 0;
         let titleClickTimer = null;
         function handleTitleClick() {
@@ -436,15 +421,10 @@
             }
         }
 
-        // ---------------------------------------------------------
-        // 3. モーダル処理
-        // ---------------------------------------------------------
         function openMapModal() { document.getElementById('map-modal').style.display = 'flex'; }
         function closeModal() { document.getElementById('map-modal').style.display = 'none'; }
 
-        // 初期実行
         window.onload = function() {
-            // ロード時に過去のデータを読み込んでUIに反映
             applyKecleonState(false);
             loadRealtimeData();
         };
